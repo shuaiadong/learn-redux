@@ -1,13 +1,21 @@
 {
   "private": true,
+  "name": "learn-redux",
+  "version": "1.0.0",
   "scripts": {
-    "start": "umi dev",
-    "build": "umi build",
-    "postinstall": "umi generate tmp",
-    "prettier": "prettier --write '**/*.{js,jsx,tsx,ts,less,md,json}'",
+    "start": "dumi dev",
+    "docs:build": "dumi build",
+    "docs:deploy": "gh-pages -d docs-dist",
+    "build": "father-build",
+    "deploy": "npm run docs:build && npm run docs:deploy",
+    "release": "npm run build && npm publish",
+    "prettier": "prettier --write \"**/*.{js,jsx,tsx,ts,less,md,json}\"",
     "test": "umi-test",
     "test:coverage": "umi-test --coverage"
   },
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "typings": "dist/index.d.ts",
   "gitHooks": {
     "pre-commit": "lint-staged"
   },
@@ -20,14 +28,16 @@
     ]
   },
   "dependencies": {
-    "@ant-design/pro-layout": "^5.0.12",
+    "react": "^16.12.0"
+  },
+  "devDependencies": {
     "@umijs/preset-react": "1.x",
-    "@umijs/test": "^3.2.10",
+    "@umijs/test": "^3.0.5",
+    "dumi": "^1.0.9",
+    "father-build": "^1.17.2",
+    "gh-pages": "^3.0.0",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
-    "umi": "^3.2.10",
     "yorkie": "^2.0.0"
   }
 }
