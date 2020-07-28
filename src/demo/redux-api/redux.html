@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./redux-4.0.5.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* font-size: 0; */
+        }
+
+        #todoWrapper {
+            --gray33: #333;
+            --todoBgColor: #fff;
+            --baseColor: #ec7259;
+
+            --todoWidth: 500px;
+            --todoHeight: 400px;
+            --baseRadius: 4px;
+            --minHeight: 32px;
+
+            width: var(--todoWidth);
+            min-height: var(--todoHeight);
+            background-color: var(--todoBgColor);
+            border: 1px solod var(--gray33);
+            margin: 100px auto;
+            padding: 20px 30px;
+            border: 1px solid #ccc;
+            border-radius: var(--baseRadius);
+            box-shadow: 0px 0px 20px 0px rgb(132 127 127 / 50%);
+        }
+
+        #todoWrapper .header {
+
+            text-align: center;
+            word-spacing: 0;
+            letter-space: 0;
+
+        }
+
+        input {
+            word-spacing: 0;
+            font-size: 12px;
+            width: 200px;
+            padding: 5px 15px;
+            height: var(--minHeight);
+            outline: none;
+            border-radius: var(--baseRadius) 0 0 var(--baseRadius);
+            box-shadow: none;
+            border: 1px solid var(--baseColor);
+            line-height: 14px;
+            color: var(--gray33);
+
+            /* 只改变光标的颜色 */
+            caret-color: var(--baseColor);
+        }
+
+        /* 改变placeholder的颜色 */
+        /* input::-webkit-input-placeholder  {
+            color: var(--baseColor);
+        } */
+        button {
+            word-spacing: 0;
+            font-size: 12px;
+            line-height: 12px;
+            color: white;
+            height: var(--minHeight);
+            background-color: var(--baseColor);
+            outline: none;
+            width: 78px;
+            border: 1px solid var(--baseColor);
+            border-radius: 0 var(--baseRadius) var(--baseRadius) 0;
+            cursor: pointer;
+        }
+
+        .content {
+            margin-top: 50px;
+        }
+
+        ul>li {
+            font-size: 14px;
+            list-style: none;
+            min-height: 32px;
+            padding: 10px 20px;
+            border: 1px solid #ccc;
+            margin-top: 15px;
+            border-radius: var(--baseRadius);
+        }
+
+        ul>li button.del {
+            height: auto;
+            width: auto;
+            font-size: 14px;
+            float: right;
+            color: var(--gray33);
+            background-color: white;
+            border: none;
+            margin-top: 5px;
+        }
+
+        ul>li:hover,
+        ul>li:hover .del {
+            transition:  all 1s;
+            background-color: var(--baseColor);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="todoWrapper">
+        <div class="header">
+            <input  id="input" type="text" placeholder="请输入">
+            <button id="addBtn">添加</button>
+        </div>
+        <ul class="content">
+            暂无数据
+        </ul>
+    </div>
+</body>
+
+<script>
+    // local session cookie
+    const storage = {
+        set(key, value) {
+            localStorage.setItem(key, JSON.stringify(value))
+        },
+        get(key) {
+            return JSON.parse(localStorage.getItem(key));
+        },
+        remove(key) {
+            localStorage.removeItem(key)
+        }
+    }
+
+
+    window.onload = function () {
+        // 新增事件
+        addBtn.onclick = () => {
+            store.dispatch({type: ADD, payload: {name: input.value}})
+        }
+
+        // 删除事件 采用事件委托
+        document.addEventListener('click', function (e) {
+            // console.log(e.target.classList.includes('del'))
+            if ([].slice.call(e.target.classList).includes('del')) {
+                // 找到是第几个li
+                var index = [].indexOf.call(e.target.parentNode.parentNode.children, e.target.parentNode);
+                store.dispatch({type: DEL, payload: {index}})
+            }
+        }, false)
+    }
+
+
+    const { createStore } = Redux;
+
+    // 1 action
+    const ADD = 'ADD';
+    const DEL = 'DEL';
+    // 2 便携reducer
+    function reducer(state = [], action) {
+        switch(action.type) {
+            case ADD:
+                return [...state, {...action.payload}]
+            case DEL:
+            state.splice(action.payload.index, 1);
+            return state;
+            default:
+                return state;
+        }
+    }
+    // 3 创建仓库
+    const store = createStore(reducer, storage.get('todoList') || []);
+
+    // 4 刷新视图
+    store.subscribe(function () {
+        console.log(store.getState());
+        storage.set('todoList', store.getState())
+        render();
+    })
+
+    function render() {
+        let todoList = store.getState();
+        let str = todoList.reduce((htmlStr, a) => {
+            return htmlStr += `<li>${a.name}<button class="del">X</button></li>`
+        }, '');
+        document.querySelector('.content').innerHTML = str || '暂无数据';
+    }
+    // 渲染页面
+    render();
+
+
+</script>
+
+</html>
+<!-- <https://www.jianshu.com/p/b3f01185e55b> -->
